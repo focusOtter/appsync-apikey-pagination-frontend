@@ -43,6 +43,7 @@ export default function Home({ users = [], nextToken }) {
 					limit: 5,
 					nextToken: currToken,
 				},
+				authMode: 'AWS_IAM',
 			})
 
 			const { nextToken, items } = listUsers
@@ -74,6 +75,7 @@ export default function Home({ users = [], nextToken }) {
 				limit: 5,
 				nextToken: isFirstPage ? null : prevToken,
 			},
+			authMode: 'AWS_IAM',
 		})
 		const { items } = listUsers
 		console.log(items)
@@ -113,7 +115,10 @@ export async function getStaticProps() {
 	const { data } = await API.graphql({
 		query: fetchUsersQuery,
 		variables: { limit: 5 },
+		authMode: 'AWS_IAM',
 	})
+
+	console.log('the data', data)
 
 	return {
 		props: {
