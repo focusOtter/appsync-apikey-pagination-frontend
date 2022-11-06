@@ -1,34 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Fetch Data from a DynamoDB Database with AWS Amplify
 
-## Getting Started
+> This repo is part of a fullstack application. The backend can be found [here](https://github.com/focusOtter/cdk-appsync-guests).
 
-First, run the development server:
+Using a NextJS app with the [AWS Amplify JavaScript libraries](https://docs.amplify.aws/lib/q/platform/js/), we can hook into AWS resources. This frontend demonstrates hooking into an AppSync API that is protected with the an API Key.
 
-```bash
-npm run dev
-# or
-yarn dev
+```ts
+// replace with your own keys
+Amplify.configure({
+	aws_project_region: 'us-east-1',
+	aws_appsync_graphqlEndpoint:
+		'https://c4wds3boinhrdemdnqkt5uztny.appsync-api.us-east-1.amazonaws.com/graphql',
+	aws_appsync_region: 'us-east-1',
+	aws_appsync_authenticationType: 'API_KEY',
+	aws_appsync_apiKey: 'da2-ze45yo5nm5dttnnsvkyoxwbbvq',
+})
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In addition to configuring our frontend, the Amplify libraries also provide several ways to [call our backend](https://github.com/focusOtter/appsync-apikey-pagination-frontend/blob/main/pages/index.js#L12-L28) depending on how much or little we want our frontend to make use of Amplify:
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```ts
+//alternatively, run the following commands in your terminal:
+// 1. npm i -g @aws-amplify/cli -g
+// 2. amplify init -y
+// 3. amplify add codegen --apiId YOUR-API-ID 😎
+const fetchUsersQuery = `
+  query ListUsers($limit: Int, $nextToken: String) {
+    listUsers(limit: $limit, nextToken: $nextToken) {
+      items {
+        userId
+        firstname
+        lastname
+        picture
+      }
+      nextToken
+    }
+  }
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Note the `nextToken` field. This will return a token if there are more users available. This is how pagination is done in GraphQL.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+For styling the [AWS Amplify UI library])(https://ui.docs.amplify.aws/) is used to create the following page when the application is run with `npm run dev`:
 
-## Learn More
+![user profile](./readmeImages/userProfile.png)
 
-To learn more about Next.js, take a look at the following resources:
+## Content Created
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- AWS blog post: [Secure AWS AppSync with API Keys using the AWS CDK](https://aws.amazon.com/blogs/mobile/secure-aws-appsync-with-api-keys-using-the-aws-cdk/)
